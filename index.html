@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>محور القيادة — كتالوج قطع الغيار</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;800;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --graphite:#1C2127;
+    --steel:#2E4756;
+    --orange:#F2641A;
+    --amber:#FFB627;
+    --paper:#F6F3ED;
+    --paper-dim:#EAE5DA;
+    --ink:#1C2127;
+    --line:#D8D2C4;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:'Tajawal',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  header.top{
+    background:var(--graphite); color:#fff; padding:18px 20px 22px;
+    position:sticky; top:0; z-index:20;
+    box-shadow:0 4px 14px rgba(0,0,0,.15);
+  }
+  .brand-row{display:flex; align-items:center; justify-content:space-between; gap:12px;}
+  .logo{
+    font-family:'Cairo',sans-serif; font-weight:900; font-size:22px; letter-spacing:.5px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .logo .stripe{
+    width:6px;height:26px;background:linear-gradient(var(--orange),var(--amber));
+    border-radius:2px;
+  }
+  .cart-btn{
+    background:var(--orange); color:#fff; border:none; border-radius:999px;
+    padding:10px 18px; font-family:'Tajawal'; font-weight:700; font-size:14px;
+    display:flex; align-items:center; gap:8px; cursor:pointer;
+    box-shadow:0 3px 8px rgba(242,100,26,.35);
+  }
+  .cart-count{
+    background:var(--graphite); color:#fff; border-radius:999px;
+    min-width:20px; height:20px; font-size:12px; display:flex; align-items:center;
+    justify-content:center; padding:0 5px;
+  }
+  .search-wrap{margin-top:16px;}
+  .search-wrap input{
+    width:100%; padding:13px 16px; border-radius:10px; border:none;
+    font-family:'Tajawal'; font-size:15px; background:rgba(255,255,255,.08);
+    color:#fff; outline:none;
+  }
+  .search-wrap input::placeholder{color:#9aa4ad;}
+  .search-wrap input:focus{background:rgba(255,255,255,.14);}
+
+  .owner-btn{
+    background:none; border:none; color:#8a94a0; font-size:16px; cursor:pointer;
+    padding:2px 4px; opacity:.6;
+  }
+  .owner-btn:hover{opacity:1;}
+  .owner-panel{
+    margin-top:10px; display:none; flex-direction:column; gap:10px;
+    background:rgba(255,255,255,.08); border-radius:10px; padding:12px 14px;
+  }
+  .owner-panel.visible{display:flex;}
+  .margin-wrap{
+    display:flex; align-items:center; gap:10px;
+  }
+  .margin-wrap label{font-size:13px; font-weight:700; color:#e8dfce;}
+  .margin-wrap input{
+    width:70px; padding:6px 8px; border-radius:6px; border:none;
+    font-family:'Tajawal'; font-weight:700; font-size:14px; text-align:center;
+    background:#fff; color:var(--ink); outline:none;
+  }
+  .owner-section{border-top:1px solid rgba(255,255,255,.15); padding-top:10px;}
+  .owner-section-title{font-size:12.5px; font-weight:700; color:#e8dfce; margin-bottom:8px;}
+  .supplier-row-owner{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    background:rgba(255,255,255,.06); border-radius:8px; padding:8px 10px; margin-bottom:6px;
+  }
+  .supplier-row-owner .sname{font-size:12.5px; color:#fff; font-weight:600;}
+  .supplier-row-owner .scount{font-size:11px; color:#b8c0c8;}
+  .supplier-row-owner button{
+    font-family:'Tajawal'; font-weight:700; font-size:11px; border:none; border-radius:6px;
+    padding:6px 10px; cursor:pointer;
+  }
+  .btn-danger{background:#c0392b; color:#fff;}
+  .btn-restore{background:#4a9d5f; color:#fff;}
+  .backup-btn{
+    background:#fff; color:var(--graphite); border:none; border-radius:8px;
+    padding:10px; font-family:'Tajawal'; font-weight:700; font-size:13px; cursor:pointer;
+  }
+
+  .chips-section{padding:14px 20px 4px; background:var(--paper);}
+  .chips-label{font-size:12px; color:#8a8375; font-weight:700; margin-bottom:8px;}
+  .chips{display:flex; gap:8px; overflow-x:auto; padding-bottom:10px; scrollbar-width:thin;}
+  .chip{
+    flex:none; padding:9px 16px; border-radius:999px; border:1.5px solid var(--line);
+    background:#fff; font-family:'Tajawal'; font-weight:700; font-size:13.5px;
+    cursor:pointer; white-space:nowrap; transition:.15s;
+  }
+  .chip.active{background:var(--steel); color:#fff; border-color:var(--steel);}
+  .chip:hover:not(.active){border-color:var(--steel);}
+
+  .results-info{
+    padding:8px 20px; font-size:13px; color:#8a8375; font-weight:500;
+  }
+
+  .grid{
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(155px,1fr));
+    gap:12px; padding:6px 20px 100px;
+  }
+  .card{
+    background:#fff; border:1.5px dashed var(--line); border-radius:12px;
+    padding:14px 12px 12px; position:relative; display:flex; flex-direction:column;
+    min-height:150px;
+  }
+  .card::before{
+    content:''; position:absolute; top:10px; left:10px; width:10px; height:10px;
+    border-radius:50%; background:var(--paper); border:1.5px solid var(--line);
+  }
+  .card .brand-tag{
+    font-size:10.5px; color:#fff; background:var(--steel); padding:2px 8px;
+    border-radius:5px; align-self:flex-end; margin-bottom:8px; font-weight:700;
+  }
+  .card .name{
+    font-size:13px; line-height:1.5; font-weight:500; margin-bottom:6px;
+    word-break:break-word;
+  }
+  .card .code{
+    font-size:11px; color:#8a8375; font-weight:500; margin-bottom:10px; flex:1;
+  }
+  .card .price{
+    font-family:'Cairo'; font-weight:800; font-size:16px; color:var(--orange);
+    margin-bottom:8px;
+  }
+  .card .price small{font-size:11px; color:#8a8375; font-weight:500;}
+  .card button.add{
+    background:var(--graphite); color:#fff; border:none; border-radius:8px;
+    padding:9px; font-family:'Tajawal'; font-weight:700; font-size:13px; cursor:pointer;
+    transition:.15s;
+  }
+  .card button.add:hover{background:var(--orange);}
+  .card button.add.added{background:#4a9d5f;}
+
+  .empty{
+    text-align:center; padding:60px 20px; color:#8a8375; font-size:14px;
+  }
+
+  /* Cart drawer */
+  .overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:30;
+    opacity:0; pointer-events:none; transition:.2s;
+  }
+  .overlay.open{opacity:1; pointer-events:auto;}
+  .drawer{
+    position:fixed; top:0; bottom:0; left:0; width:min(380px,88vw);
+    background:var(--paper); z-index:31; transform:translateX(-100%);
+    transition:.25s; display:flex; flex-direction:column;
+    box-shadow:6px 0 24px rgba(0,0,0,.2);
+  }
+  .drawer.open{transform:translateX(0);}
+  .drawer-head{
+    background:var(--graphite); color:#fff; padding:18px 20px;
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:'Cairo'; font-weight:800; font-size:17px;
+  }
+  .drawer-head button{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;}
+  .drawer-items{flex:1; overflow-y:auto; padding:14px 16px;}
+  .cart-table{
+    width:100%; border-collapse:collapse; font-size:11.5px;
+  }
+  .cart-table thead th{
+    background:var(--steel); color:#fff; padding:8px 4px; font-size:11px;
+    font-weight:700; text-align:center; position:sticky; top:0;
+  }
+  .cart-table tbody td{
+    border-bottom:1px solid var(--line); padding:8px 4px; text-align:center; vertical-align:middle;
+  }
+  .cart-table td.col-name{ text-align:right; font-weight:500; line-height:1.4; }
+  .cart-table td.col-code{ color:#8a8375; font-size:10.5px; }
+  .cart-table td.col-price, .cart-table td.col-total{ font-weight:700; color:var(--orange); white-space:nowrap; }
+  .qty-ctrl{display:flex; align-items:center; gap:6px;}
+  .qty-ctrl button{
+    width:24px;height:24px; border-radius:6px; border:1px solid var(--line);
+    background:#fff; cursor:pointer; font-weight:700;
+  }
+  .qty-ctrl span{font-weight:700; min-width:18px; text-align:center; font-size:13px;}
+  .drawer-foot{
+    padding:16px 20px 20px; border-top:1px solid var(--line); background:#fff;
+  }
+  .customer-fields{
+    display:flex; flex-direction:column; gap:8px; margin-bottom:14px;
+  }
+  .customer-fields input{
+    padding:10px 12px; border-radius:8px; border:1.5px solid var(--line);
+    font-family:'Tajawal'; font-size:13.5px; outline:none;
+  }
+  .customer-fields input:focus{border-color:var(--steel);}
+  .print-btn{
+    width:100%; background:#fff; color:var(--graphite); border:1.5px solid var(--graphite);
+    border-radius:10px; padding:12px; font-family:'Tajawal'; font-weight:700; font-size:14px;
+    cursor:pointer; margin-top:8px;
+  }
+  .print-btn:hover{background:var(--paper-dim);}
+  .total-row{
+    display:flex; justify-content:space-between; font-family:'Cairo'; font-weight:800;
+    font-size:17px; margin-bottom:14px;
+  }
+  .total-row span:last-child{color:var(--orange);}
+  .send-btn{
+    width:100%; background:var(--orange); color:#fff; border:none; border-radius:10px;
+    padding:14px; font-family:'Tajawal'; font-weight:700; font-size:15px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .send-btn:hover{background:#d9550f;}
+  .empty-cart{text-align:center; color:#8a8375; padding:50px 10px; font-size:14px;}
+
+  @media (max-width:480px){
+    .grid{grid-template-columns:repeat(auto-fill,minmax(135px,1fr));}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand-row">
+    <div class="logo"><span class="stripe"></span> محور القيادة
+      <button id="ownerBtn" class="owner-btn" onclick="tryOwnerAccess()">⚙️</button>
+    </div>
+    <button class="cart-btn" onclick="openCart()">
+      🛒 السلة <span class="cart-count" id="cartCount">0</span>
+    </button>
+  </div>
+  <div class="search-wrap">
+    <input id="searchBox" type="text" placeholder="ابحث بالاسم، الموديل، الرقم، أو الشركة... (مثال: فلتر كرولا HI-Q)">
+  </div>
+  <div class="owner-panel" id="ownerPanel">
+    <div class="margin-wrap">
+      <label for="marginBox">نسبة الربح %</label>
+      <input id="marginBox" type="number" value="15" min="0" max="200" step="1">
+    </div>
+    <div class="owner-section">
+      <div class="owner-section-title">إدارة كشوفات الموردين</div>
+      <div id="ownerSupplierList"></div>
+    </div>
+    <div class="owner-section">
+      <div class="owner-section-title">عدد الزيارات</div>
+      <div id="visitorCountDisplay" style="color:#fff; font-size:14px; font-weight:700;">جاري الحساب...</div>
+    </div>
+    <button class="backup-btn" onclick="downloadBackup()">⬇️ تحميل نسخة احتياطية من البيانات</button>
+  </div>
+</header>
+
+<div class="chips-section">
+  <div class="chips-label">المورد (تاجر الجملة)</div>
+  <div class="chips" id="supplierChips"></div>
+</div>
+
+<div class="chips-section">
+  <div class="chips-label">الشركة المصنعة</div>
+  <div class="chips" id="manufacturerChips"></div>
+</div>
+
+<div class="chips-section">
+  <div class="chips-label">اختر الماركة</div>
+  <div class="chips" id="brandChips"></div>
+</div>
+
+<div class="chips-section" id="typeSection" style="display:none;">
+  <div class="chips-label">اختر نوع الجزء</div>
+  <div class="chips" id="typeChips"></div>
+</div>
+
+<div class="results-info" id="resultsInfo"></div>
+<div class="grid" id="grid"></div>
+
+<div class="overlay" id="overlay" onclick="closeCart()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <span>سلة الطلب</span>
+    <button onclick="closeCart()">✕</button>
+  </div>
+  <div class="drawer-items" id="drawerItems"></div>
+  <div class="drawer-foot">
+    <div class="customer-fields">
+      <input type="text" id="custShop" placeholder="اسم المحل *">
+      <input type="tel" id="custPhone" placeholder="رقم الهاتف *">
+      <input type="text" id="custAddress" placeholder="العنوان *">
+    </div>
+    <div class="total-row"><span>الإجمالي:</span><span id="totalPrice">0.000 د.ل</span></div>
+    <button class="send-btn" onclick="sendOrder()">📩 إرسال الطلب عبر واتساب</button>
+    <button class="print-btn" onclick="printOrder()">🖨️ طباعة الطلب</button>
+  </div>
+</div>
+
+<script>
+let CATALOG = []; // يتم تحميلها من data.json عند فتح الصفحة
+
+const OWNER_CODE = "731993";
+function tryOwnerAccess(){
+  const panel = document.getElementById('ownerPanel');
+  if(panel.classList.contains('visible')){
+    panel.classList.remove('visible');
+    return;
+  }
+  const code = prompt("أدخل الرقم السري:");
+  if(code === OWNER_CODE){
+    panel.classList.add('visible');
+    renderOwnerSupplierList();
+  } else if(code !== null){
+    alert("رقم غير صحيح");
+  }
+}
+let selectedBrand = null;
+let selectedType = null;
+let selectedSupplier = null;
+let selectedManufacturer = null;
+let searchTerm = "";
+
+function loadSaved(key, fallback){
+  try{
+    const v = localStorage.getItem(key);
+    return v ? JSON.parse(v) : fallback;
+  }catch(e){ return fallback; }
+}
+function loadSavedSession(key, fallback){
+  try{
+    const v = sessionStorage.getItem(key);
+    return v ? JSON.parse(v) : fallback;
+  }catch(e){ return fallback; }
+}
+function saveState(){
+  try{
+    sessionStorage.setItem('mahwar_cart', JSON.stringify(cart));
+    localStorage.setItem('mahwar_margin', JSON.stringify(marginPct));
+    localStorage.setItem('mahwar_customer', JSON.stringify({
+      shop: document.getElementById('custShop').value,
+      phone: document.getElementById('custPhone').value,
+      address: document.getElementById('custAddress').value
+    }));
+  }catch(e){ /* التخزين غير متاح، لا مشكلة */ }
+}
+function saveHiddenSuppliers(){
+  try{ localStorage.setItem('mahwar_hidden_suppliers', JSON.stringify(hiddenSuppliers)); }catch(e){}
+}
+function clearCart(){
+  cart = {};
+  try{ sessionStorage.removeItem('mahwar_cart'); }catch(e){}
+  updateCartUI();
+  renderDrawer();
+  renderGrid();
+}
+
+function renderOwnerSupplierList(){
+  const el = document.getElementById('ownerSupplierList');
+  el.innerHTML = '';
+  suppliers.forEach(s=>{
+    const count = CATALOG.filter(i=>i.supplier===s).length;
+    const isHidden = hiddenSuppliers.includes(s);
+    const row = document.createElement('div');
+    row.className = 'supplier-row-owner';
+    row.innerHTML = `
+      <div>
+        <div class="sname">${s}</div>
+        <div class="scount">${isHidden ? 'البضاعة صفر (محذوف)' : count + ' صنف'}</div>
+      </div>
+      <button class="${isHidden?'btn-restore':'btn-danger'}">${isHidden?'استرجاع':'تصفير البضاعة'}</button>
+    `;
+    row.querySelector('button').onclick = ()=>{
+      if(isHidden){
+        if(confirm(`استرجاع بضاعة "${s}"؟`)){
+          hiddenSuppliers = hiddenSuppliers.filter(x=>x!==s);
+          saveHiddenSuppliers();
+          renderOwnerSupplierList();
+          render();
+        }
+      } else {
+        if(confirm(`تصفير كل بضاعة "${s}" (${count} صنف)؟ الاسم يفضل موجود لإضافة كشف جديد لاحقًا.`)){
+          hiddenSuppliers.push(s);
+          saveHiddenSuppliers();
+          renderOwnerSupplierList();
+          render();
+        }
+      }
+    };
+    el.appendChild(row);
+  });
+}
+
+function downloadBackup(){
+  const data = {
+    exported_at: new Date().toISOString(),
+    hidden_suppliers: hiddenSuppliers,
+    margin_percent: marginPct,
+    catalog: CATALOG
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'نسخة_احتياطية_محور_القيادة_' + new Date().toISOString().slice(0,10) + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+let cart = loadSavedSession('mahwar_cart', {}); // id -> qty (session only: survives refresh, clears when tab closes)
+let marginPct = loadSaved('mahwar_margin', 15);
+let savedCustomer = loadSaved('mahwar_customer', {shop:'', phone:'', address:''});
+let hiddenSuppliers = loadSaved('mahwar_hidden_suppliers', []); // موردين تم تصفير بضاعتهم (الاسم يفضل، الأصناف تختفي)
+
+function salePrice(item){
+  return item.wholesale * (1 + marginPct/100);
+}
+
+let brands = [];
+let suppliers = [];
+let manufacturers = [];
+
+function computeDerivedLists(){
+  brands = [...new Set(CATALOG.map(i=>i.brand))].sort((a,b)=> a==='غير محدد'?1:b==='غير محدد'?-1:0);
+  suppliers = [...new Set(CATALOG.map(i=>i.supplier))];
+  // نعرض بس الشركات المصنعة اللي ليها ٣ أصناف فأكتر، عشان الشريط ما يبقاش طويل جدًا بأسماء نادرة
+  const manufacturerCounts = {};
+  CATALOG.forEach(i=>{ manufacturerCounts[i.manufacturer] = (manufacturerCounts[i.manufacturer]||0)+1; });
+  manufacturers = Object.keys(manufacturerCounts)
+    .filter(m => m!=='غير محدد' && manufacturerCounts[m] >= 3)
+    .sort((a,b)=> manufacturerCounts[b]-manufacturerCounts[a]);
+}
+
+function renderManufacturerChips(){
+  const el = document.getElementById('manufacturerChips');
+  el.innerHTML = '';
+  const allChip = document.createElement('div');
+  allChip.className = 'chip' + (selectedManufacturer===null?' active':'');
+  allChip.textContent = 'كل الشركات';
+  allChip.onclick = ()=>{selectedManufacturer=null; render();};
+  el.appendChild(allChip);
+  manufacturers.forEach(m=>{
+    const c = document.createElement('div');
+    c.className = 'chip' + (selectedManufacturer===m?' active':'');
+    c.textContent = m;
+    c.onclick = ()=>{selectedManufacturer=m; render();};
+    el.appendChild(c);
+  });
+}
+
+function renderSupplierChips(){
+  const el = document.getElementById('supplierChips');
+  el.innerHTML = '';
+  const allChip = document.createElement('div');
+  allChip.className = 'chip' + (selectedSupplier===null?' active':'');
+  allChip.textContent = 'كل الموردين';
+  allChip.onclick = ()=>{selectedSupplier=null; render();};
+  el.appendChild(allChip);
+  suppliers.forEach(s=>{
+    const c = document.createElement('div');
+    c.className = 'chip' + (selectedSupplier===s?' active':'');
+    c.textContent = s;
+    c.onclick = ()=>{selectedSupplier=s; render();};
+    el.appendChild(c);
+  });
+}
+
+function renderBrandChips(){
+  const el = document.getElementById('brandChips');
+  el.innerHTML = '';
+  const allChip = document.createElement('div');
+  allChip.className = 'chip' + (selectedBrand===null?' active':'');
+  allChip.textContent = 'كل الماركات';
+  allChip.onclick = ()=>{selectedBrand=null; selectedType=null; render();};
+  el.appendChild(allChip);
+  brands.forEach(b=>{
+    const c = document.createElement('div');
+    c.className = 'chip' + (selectedBrand===b?' active':'');
+    c.textContent = b;
+    c.onclick = ()=>{selectedBrand=b; selectedType=null; render();};
+    el.appendChild(c);
+  });
+}
+
+function renderTypeChips(){
+  const section = document.getElementById('typeSection');
+  const el = document.getElementById('typeChips');
+  el.innerHTML = '';
+  if(!selectedBrand){ section.style.display='none'; return; }
+  section.style.display='block';
+  const types = [...new Set(CATALOG.filter(i=>i.brand===selectedBrand).map(i=>i.part_type))].sort();
+  const allChip = document.createElement('div');
+  allChip.className = 'chip' + (selectedType===null?' active':'');
+  allChip.textContent = 'كل الأنواع';
+  allChip.onclick = ()=>{selectedType=null; render();};
+  el.appendChild(allChip);
+  types.forEach(t=>{
+    const c = document.createElement('div');
+    c.className = 'chip' + (selectedType===t?' active':'');
+    c.textContent = t;
+    c.onclick = ()=>{selectedType=t; render();};
+    el.appendChild(c);
+  });
+}
+
+function normalizeSearch(str){
+  return String(str)
+    .toLowerCase()
+    .replace(/[\-_.\/*]+/g, ' ')   // توحيد الفواصل (شرطات، نقاط...) لمسافات
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function filteredItems(){
+  const term = normalizeSearch(searchTerm);
+  return CATALOG.filter(i=>{
+    if(hiddenSuppliers.includes(i.supplier)) return false;
+    if(selectedSupplier && i.supplier!==selectedSupplier) return false;
+    if(selectedManufacturer && i.manufacturer!==selectedManufacturer) return false;
+    if(selectedBrand && i.brand!==selectedBrand) return false;
+    if(selectedType && i.part_type!==selectedType) return false;
+    if(term){
+      // نبحث في الاسم (يشمل الوصف والشركة المصنعة) + الرقم + الماركة + نوع الجزء + المورد
+      const haystack = normalizeSearch(
+        [i.name, i.code, i.brand, i.part_type, i.supplier, i.manufacturer].filter(Boolean).join(' ')
+      );
+      // كل كلمة في البحث لازم تكون موجودة (بحث دقيق AND) بأي ترتيب
+      const words = term.split(' ').filter(Boolean);
+      const matchesAll = words.every(w => haystack.includes(w));
+      if(!matchesAll) return false;
+    }
+    return true;
+  });
+}
+
+function renderGrid(){
+  const items = filteredItems();
+  document.getElementById('resultsInfo').textContent = items.length + ' صنف';
+  const grid = document.getElementById('grid');
+  if(items.length===0){
+    grid.innerHTML = '<div class="empty">ما لقيناش أصناف مطابقة، جرّب كلمة بحث تانية</div>';
+    return;
+  }
+  grid.innerHTML = '';
+  items.forEach(item=>{
+    const card = document.createElement('div');
+    card.className = 'card';
+    const inCart = cart[item.id];
+    card.innerHTML = `
+      <div class="brand-tag">${item.brand}</div>
+      <div class="name">${item.name}</div>
+      <div class="code">رقم الصنف: ${item.code || '—'}</div>
+      <div class="price">${salePrice(item).toFixed(3)} <small>د.ل</small></div>
+      <button class="add ${inCart?'added':''}" data-id="${item.id}">${inCart? 'أضيفت ✓' : '+ أضف للسلة'}</button>
+    `;
+    card.querySelector('button.add').onclick = (e)=>{
+      addToCart(item);
+      e.target.textContent = 'أضيفت ✓';
+      e.target.classList.add('added');
+      setTimeout(()=>{ e.target.textContent='+ أضف للسلة'; e.target.classList.remove('added'); }, 900);
+    };
+    grid.appendChild(card);
+  });
+}
+
+function addToCart(item){
+  cart[item.id] = (cart[item.id]||0) + 1;
+  saveState();
+  updateCartUI();
+}
+
+function changeQty(id, delta){
+  if(!cart[id]) return;
+  cart[id] += delta;
+  if(cart[id]<=0) delete cart[id];
+  saveState();
+  updateCartUI();
+  renderDrawer();
+}
+
+function updateCartUI(){
+  const count = Object.values(cart).reduce((s,q)=>s+q,0);
+  document.getElementById('cartCount').textContent = count;
+}
+
+function renderDrawer(){
+  const el = document.getElementById('drawerItems');
+  const ids = Object.keys(cart);
+  if(ids.length===0){
+    el.innerHTML = '<div class="empty-cart">السلة فارغة — أضف أصناف من الكتالوج</div>';
+    document.getElementById('totalPrice').textContent = '0.000 د.ل';
+    return;
+  }
+  let total = 0;
+  let rowsHtml = '';
+  ids.forEach((id, idx)=>{
+    const item = CATALOG.find(x=>x.id==id);
+    const qty = cart[id];
+    const price = salePrice(item);
+    const lineTotal = price*qty;
+    total += lineTotal;
+    rowsHtml += `
+      <tr>
+        <td class="col-num">${idx+1}</td>
+        <td class="col-code">${item.code || '—'}</td>
+        <td class="col-name">${item.name}</td>
+        <td class="col-qty">
+          <div class="qty-ctrl">
+            <button onclick="changeQty(${item.id},-1)">−</button>
+            <span>${qty}</span>
+            <button onclick="changeQty(${item.id},1)">+</button>
+          </div>
+        </td>
+        <td class="col-price">${price.toFixed(3)}</td>
+        <td class="col-total">${lineTotal.toFixed(3)}</td>
+      </tr>`;
+  });
+  el.innerHTML = `
+    <table class="cart-table">
+      <thead>
+        <tr>
+          <th>م</th><th>رقم الصنف</th><th>اسم الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th>
+        </tr>
+      </thead>
+      <tbody>${rowsHtml}</tbody>
+    </table>`;
+  document.getElementById('totalPrice').textContent = total.toFixed(3) + ' د.ل';
+}
+
+function openCart(){
+  renderDrawer();
+  document.getElementById('custShop').value = savedCustomer.shop || '';
+  document.getElementById('custPhone').value = savedCustomer.phone || '';
+  document.getElementById('custAddress').value = savedCustomer.address || '';
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
+}
+function closeCart(){
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('drawer').classList.remove('open');
+}
+
+function validateCustomerInfo(){
+  const shop = document.getElementById('custShop').value.trim();
+  const phone = document.getElementById('custPhone').value.trim();
+  const address = document.getElementById('custAddress').value.trim();
+  if(!shop || !phone || !address){
+    alert('من فضلك أدخل اسم المحل ورقم الهاتف والعنوان قبل إرسال الطلب');
+    return null;
+  }
+  return {shop, phone, address};
+}
+
+function buildOrderLines(){
+  const ids = Object.keys(cart);
+  const bySupplier = {};
+  let total = 0;
+  let counter = 0;
+  ids.forEach(id=>{
+    const item = CATALOG.find(x=>x.id==id);
+    const qty = cart[id];
+    const price = salePrice(item);
+    total += price*qty;
+    if(!bySupplier[item.supplier]) bySupplier[item.supplier] = [];
+    counter++;
+    bySupplier[item.supplier].push({item, qty, price, num:counter});
+  });
+  return {bySupplier, total};
+}
+
+function orderDateString(){
+  const d = new Date();
+  return d.toLocaleDateString('ar-LY') + ' - ' + d.toLocaleTimeString('ar-LY', {hour:'2-digit', minute:'2-digit'});
+}
+
+function padR(str, len){
+  str = String(str);
+  if(str.length >= len) return str.slice(0, len);
+  return str + ' '.repeat(len - str.length);
+}
+function padL(str, len){
+  str = String(str);
+  if(str.length >= len) return str.slice(0, len);
+  return ' '.repeat(len - str.length) + str;
+}
+
+function sendOrder(){
+  const ids = Object.keys(cart);
+  if(ids.length===0){ alert('السلة فارغة'); return; }
+  const info = validateCustomerInfo();
+  if(!info) return;
+  saveState();
+
+  const {bySupplier, total} = buildOrderLines();
+
+  let msg = "🧾 *طلب جديد - محور القيادة*%0A";
+  msg += `📅 ${orderDateString()}%0A`;
+  msg += "━━━━━━━━━━━━━━%0A";
+  msg += "👤 *بيانات الزبون*%0A";
+  msg += `المحل: ${info.shop}%0A`;
+  msg += `الهاتف: ${info.phone}%0A`;
+  msg += `العنوان: ${info.address}%0A`;
+  msg += "━━━━━━━━━━━━━━%0A";
+  msg += "📦 *تفاصيل الطلب*%0A";
+
+  Object.keys(bySupplier).forEach(supplier=>{
+    msg += `%0A*(المورد: ${supplier})*%0A`;
+    bySupplier[supplier].forEach(({item,qty,price,num})=>{
+      msg += `%0A*${num}.* ${item.name}%0A`;
+      msg += `رقم الصنف: ${item.code||'-'} | الكمية: ${qty} | السعر: ${price.toFixed(3)} | الإجمالي: ${(price*qty).toFixed(3)} د.ل%0A`;
+    });
+  });
+
+  msg += "%0A━━━━━━━━━━━━━━%0A";
+  msg += `💰 *الإجمالي الكلي: ${total.toFixed(3)} د.ل*%0A%0A`;
+  msg += "شكرًا لطلبك 🙏";
+
+  const phone = "218919923767";
+  window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+  clearCart();
+  closeCart();
+}
+
+function printOrder(){
+  const ids = Object.keys(cart);
+  if(ids.length===0){ alert('السلة فارغة'); return; }
+  const info = validateCustomerInfo();
+  if(!info) return;
+  saveState();
+
+  const {bySupplier, total} = buildOrderLines();
+  let rowsHtml = '';
+  Object.keys(bySupplier).forEach(supplier=>{
+    rowsHtml += `<tr class="supplier-row"><td colspan="6">المورد: ${supplier}</td></tr>`;
+    bySupplier[supplier].forEach(({item,qty,price,num})=>{
+      rowsHtml += `<tr>
+        <td>${num}</td>
+        <td>${item.code || '—'}</td>
+        <td>${item.name}</td>
+        <td>${qty}</td>
+        <td>${price.toFixed(3)}</td>
+        <td>${(price*qty).toFixed(3)}</td>
+      </tr>`;
+    });
+  });
+
+  const invoiceHtml = `<!DOCTYPE html>
+  <html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>طلب - ${info.shop}</title>
+  <style>
+    body{font-family:'Tajawal',Arial,sans-serif; padding:24px; color:#1C2127;}
+    h1{font-size:20px; border-bottom:3px solid #F2641A; padding-bottom:10px;}
+    .meta{margin:14px 0; font-size:14px; line-height:1.9;}
+    table{width:100%; border-collapse:collapse; margin-top:16px; font-size:13px;}
+    th,td{border:1px solid #ccc; padding:8px; text-align:right;}
+    th{background:#1C2127; color:#fff;}
+    .supplier-row td{background:#f0ede4; font-weight:700;}
+    .total{margin-top:16px; font-size:17px; font-weight:800; text-align:left; color:#F2641A;}
+    @media print{ button{display:none;} }
+  </style></head>
+  <body>
+    <h1>محور القيادة — فاتورة طلب</h1>
+    <div class="meta">
+      <div>📅 التاريخ: ${orderDateString()}</div>
+      <div>🏪 المحل: ${info.shop}</div>
+      <div>📞 الهاتف: ${info.phone}</div>
+      <div>📍 العنوان: ${info.address}</div>
+    </div>
+    <table>
+      <thead><tr><th>م</th><th>رقم الصنف</th><th>الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr></thead>
+      <tbody>${rowsHtml}</tbody>
+    </table>
+    <div class="total">الإجمالي الكلي: ${total.toFixed(3)} د.ل</div>
+    <button onclick="window.print()" style="margin-top:20px;padding:10px 20px;">🖨️ طباعة</button>
+  </body></html>`;
+
+  const w = window.open('', '_blank');
+  w.document.write(invoiceHtml);
+  w.document.close();
+}
+
+document.getElementById('marginBox').addEventListener('input', (e)=>{
+  const v = parseFloat(e.target.value);
+  marginPct = isNaN(v) ? 0 : v;
+  saveState();
+  renderGrid();
+  if(document.getElementById('drawer').classList.contains('open')) renderDrawer();
+});
+
+document.getElementById('searchBox').addEventListener('input', (e)=>{
+  searchTerm = e.target.value.trim();
+  render();
+});
+
+function render(){
+  renderSupplierChips();
+  renderManufacturerChips();
+  renderBrandChips();
+  renderTypeChips();
+  renderGrid();
+}
+
+document.getElementById('marginBox').value = marginPct;
+updateCartUI();
+document.getElementById('resultsInfo').textContent = 'جاري تحميل الكتالوج...';
+
+fetch('./data.json')
+  .then(r=>{
+    if(!r.ok) throw new Error('data.json not found');
+    return r.json();
+  })
+  .then(data=>{
+    CATALOG = data;
+    computeDerivedLists();
+    render();
+  })
+  .catch(err=>{
+    document.getElementById('grid').innerHTML =
+      '<div class="empty">تعذر تحميل بيانات الكتالوج (data.json). تأكد إن ملف data.json مرفوع في نفس مجلد index.html على GitHub.</div>';
+    document.getElementById('resultsInfo').textContent = '';
+  });
+
+// عداد الزوار - يزيد مرة واحدة كل ما حد يفتح الصفحة، ويظهر بس جوه لوحة الإدارة
+let visitorCount = null;
+fetch('https://countapi.mileshilliard.com/api/v1/hit/mahwar_alqiyada_catalog_2026')
+  .then(r=>r.json())
+  .then(data=>{
+    visitorCount = data.value;
+    const el = document.getElementById('visitorCountDisplay');
+    if(el) el.textContent = visitorCount + ' زيارة';
+  })
+  .catch(()=>{
+    const el = document.getElementById('visitorCountDisplay');
+    if(el) el.textContent = 'تعذر التحميل (تأكد من الاتصال بالنت)';
+  });
+</script>
+</body>
+</html>
